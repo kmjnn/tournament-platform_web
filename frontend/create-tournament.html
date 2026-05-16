@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Создать турнир</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5 pt-4">
+    <a href="dashboard.html" class="btn btn-secondary mb-3">← Назад</a>
+    <h1>Создать турнир</h1>
+    <form id="createForm">
+      <div class="mb-3">
+        <label>Название турнира</label>
+        <input type="text" name="title" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label>Описание</label>
+        <textarea name="description" class="form-control"></textarea>
+      </div>
+      <div class="mb-3">
+        <label>Игра / вид спорта</label>
+        <input type="text" name="game" class="form-control" required placeholder="Например, CS2, футбол, волейбол">
+      </div>
+      <div class="mb-3">
+        <label>Тип турнира</label>
+        <select name="type" id="type" class="form-select" required>
+          <option value="">-- Выберите --</option>
+          <option value="esports">Киберспорт</option>
+          <option value="sports">Спорт</option>
+        </select>
+      </div>
+
+      <!-- Поля для киберспорта -->
+      <div id="esportsFields" style="display:none;">
+        <div class="mb-3">
+          <label>Платформа</label>
+          <input type="text" name="platform" class="form-control" placeholder="PC, Mobile, Console">
+        </div>
+
+      </div>
+
+      <!-- Поля для спорта -->
+      <div id="sportsFields" style="display:none;">
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="venueRequired" id="venueRequired" value="true">
+          <label class="form-check-label" for="venueRequired">Требуется бронирование площадки</label>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label>Формат турнира</label>
+        <select name="format" class="form-select" required>
+          <option value="single_elim">Single Elimination</option>
+          <option value="double_elim">Double Elimination</option>
+          <option value="round_robin">Round Robin</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label>Мин. команд</label>
+          <input type="number" name="minTeams" class="form-control" value="2" min="2" required>
+        </div>
+        <div class="col">
+          <label>Макс. команд</label>
+          <input type="number" name="maxTeams" class="form-control" value="16" min="2" required>
+        </div>
+      </div>
+      <div class="mb-3 mt-3">
+        <label>Дедлайн регистрации</label>
+        <input type="datetime-local" name="registrationDeadline" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label>Дата и время начала</label>
+        <input type="datetime-local" name="startDate" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-success">Создать турнир</button>
+    </form>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/tournaments.js"></script>
+</body>
+</html>
