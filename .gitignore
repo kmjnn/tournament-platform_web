@@ -1,19 +1,14 @@
-# Зависимости
 node_modules/
 
-# Переменные окружения (пароли, ключи)
 .env
 
-# Логи
 *.log
 npm-debug.log*
 
-# Файлы редакторов
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Операционные системы
 .DS_Store
 Thumbs.db   

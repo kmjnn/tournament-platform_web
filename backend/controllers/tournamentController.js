@@ -1,8 +1,20 @@
 const TournamentModel = require('../models/tournamentModel');
 const TeamModel = require('../models/teamModel');
 const notificationService = require('../services/notificationService');
-const { BracketGenerator, SingleEliminationStrategy } = require('../services/bracketService');
 const MatchModel = require('../models/matchModel');
+const { BracketGenerator, SingleEliminationStrategy } = require('../services/bracketService');
+
+exports.getMyRequests = async (req, res) => {
+    try {
+        const tournamentId = req.params.id;
+        const userId = req.user.id;
+        const requests = await TournamentModel.getMyRequests(userId, tournamentId);
+        res.json(requests);
+    } catch (err) {
+        console.error('Ошибка получения заявок пользователя:', err.message);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+};
 
 exports.create = async (req, res) => {
   try {
@@ -86,29 +98,55 @@ exports.rejectRequest = async (req, res) => {
   res.json({ message: 'Rejected' });
 };
 
+// Заменить существующий метод startBracket на этот:
 exports.startBracket = async (req, res) => {
-  const tournamentId = req.params.id;
-  const tournament = await TournamentModel.findById(tournamentId);
-  if (tournament.status !== 'registration_closed') {
-    await TournamentModel.updateStatus(tournamentId, 'registration_closed');
-  }
-  // Получить одобренные заявки-команды
-  const db = require('../config/db');
-  const approvedRequests = await db.query(
-    "SELECT * FROM participation_requests WHERE tournament_id=$1 AND type='team' AND status='approved'",
-    [tournamentId]
-  );
-  if (approvedRequests.rows.length < tournament.min_teams) {
-    return res.status(400).json({ error: 'Not enough teams' });
-  }
-  // Формируем команды для стратегии
-  const teams = approvedRequests.rows.map(r => ({ id: r.team_id }));
-  const bracketGen = new BracketGenerator(new SingleEliminationStrategy());
-  const matches = bracketGen.generate(teams, tournamentId);
-  await MatchModel.createMany(matches);
-  await TournamentModel.updateStatus(tournamentId, 'in_progress');
-  notificationService.notifyAll('bracket_generated', { tournamentId });
-  res.json({ message: 'Bracket generated', matches });
+    try {
+        const tournamentId = req.params.id;
+        const tournament = await TournamentModel.findById(tournamentId);
+
+        if (!tournament) {
+            return res.status(404).json({ error: 'Турнир не найден' });
+        }
+
+        // Проверяем, что пользователь - организатор
+        if (tournament.created_by !== req.user.id) {
+            return res.status(403).json({ error: 'Только организатор может запустить генерацию сетки' });
+        }
+
+        // Закрываем регистрацию, если ещё открыта
+        if (tournament.status === 'registration_open') {
+            await TournamentModel.updateStatus(tournamentId, 'registration_closed');
+        }
+
+        // Получаем одобренные команды
+        const teams = await TournamentModel.getApprovedTeams(tournamentId);
+
+        if (teams.length < 2) {
+            return res.status(400).json({ error: 'Недостаточно команд для генерации сетки (минимум 2)' });
+        }
+
+        // Получаем стратегию в зависимости от формата турнира
+        const strategy = BracketGenerator.getStrategy(tournament.format);
+        const generator = new BracketGenerator(strategy);
+        const matches = generator.generate(teams, tournamentId);
+
+        // Сохраняем матчи в БД
+        await MatchModel.createMany(matches);
+
+        // Обновляем статус турнира
+        await TournamentModel.updateStatus(tournamentId, 'in_progress');
+
+        // Уведомляем участников
+        notificationService.notifyAll('bracket_generated', {
+            tournamentId,
+            message: 'Турнирная сетка сгенерирована'
+        });
+
+        res.json({ message: 'Сетка сгенерирована', matchesCount: matches.length });
+    } catch (err) {
+        console.error('Ошибка генерации сетки:', err);
+        res.status(500).json({ error: err.message });
+    }
 };
 
 exports.reschedule = async (req, res) => {

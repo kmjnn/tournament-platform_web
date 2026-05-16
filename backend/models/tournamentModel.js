@@ -24,7 +24,6 @@ const TournamentModel = {
     const res = await db.query('SELECT * FROM tournaments ORDER BY start_date DESC');
     return res.rows;
   },
-
   async findById(id) {
     const res = await db.query('SELECT * FROM tournaments WHERE id=$1', [id]);
     return res.rows[0];
@@ -76,8 +75,17 @@ async getApprovedTeams(tournamentId) {
     [tournamentId]
   );
   return res.rows;
-}
-
+},
+    async getMyRequests(userId, tournamentId) {
+        const query = `
+            SELECT id, type, status
+            FROM participation_requests
+            WHERE user_id = $1 AND tournament_id = $2
+            ORDER BY created_at DESC
+        `;
+        const result = await db.query(query, [userId, tournamentId]);
+        return result.rows;
+    }
 };
 
 module.exports = TournamentModel;
