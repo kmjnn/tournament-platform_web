@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
+import { useTheme } from './ThemeContext';
 
 const emptyTournament = {
   title: "",
@@ -54,6 +55,7 @@ function getFormatRu(format) {
 }
 
 export default function App() {
+  const { toggleTheme, theme } = useTheme();
   const [authMode, setAuthMode] = useState("login");
   const [authData, setAuthData] = useState({ nickname: "", email: "", password: "", role: "participant" });
   const [user, setUser] = useState(null);
@@ -332,6 +334,9 @@ export default function App() {
           <h1>Tournament Platform</h1>
           <p>Организация киберспортивных и спортивных турниров в одном интерфейсе</p>
         </div>
+        <button className="btn tiny ghost" onClick={toggleTheme} style={{ marginLeft: '8px' }}>
+          {theme === 'dark' ? '🌞' : '🌙'}
+        </button>
         {user && (
           <div className="user-badge">
             <strong>{user.nickname}</strong>

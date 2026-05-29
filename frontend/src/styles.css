@@ -1,3 +1,95 @@
+/* Определяем переменные для тёмной темы (по умолчанию) */
+:root {
+  --bg-body: radial-gradient(circle at top, #1e293b 0%, #0f172a 48%);
+  --text-primary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --panel-bg: rgba(15, 23, 42, 0.8);
+  --input-bg: #0f172a;
+  --card-bg: #0f172a;
+  --btn-primary-bg: linear-gradient(135deg, #06b6d4, #2563eb);
+  --btn-primary-text: #f8fafc;
+  --btn-secondary-bg: #334155;
+  --btn-secondary-text: #e2e8f0;
+  --btn-ghost-border: #334155;
+  --btn-ghost-text: #cbd5e1;
+  --btn-danger-bg: #b91c1c;
+  --btn-danger-text: #fee2e2;
+  --status-bg: #1e293b;
+  --status-border: #334155;
+  --status-in-progress-bg: #0f766e;
+  --status-in-progress-border: #14b8a6;
+  --status-registration-open-bg: #1d4ed8;
+  --status-registration-open-border: #38bdf8;
+  --status-scheduled-bg: #6d28d9;
+  --status-scheduled-border: #a78bfa;
+  --status-finished-bg: #166534;
+  --status-finished-border: #4ade80;
+  --status-pending-bg: #1e293b;
+  --status-pending-border: #64748b;
+  --status-approved-bg: #14532d;
+  --status-approved-border: #4ade80;
+  --status-rejected-bg: #7f1d1d;
+  --status-rejected-border: #f87171;
+  --alert-success-bg: rgba(20, 184, 166, 0.2);
+  --alert-success-border: #14b8a6;
+  --alert-error-bg: rgba(220, 38, 38, 0.2);
+  --alert-error-border: #dc2626;
+  --winner-color: #86efac;
+  --modal-overlay: rgba(2, 6, 23, 0.72);
+  --modal-bg: #0f172a;
+  --hint-info-color: #7dd3fc;
+  --hint-info-border: #38bdf8;
+  --hint-warn-color: #fcd34d;
+  --hint-warn-border: #f59e0b;
+}
+
+/* Светлая тема */
+[data-theme="light"] {
+  --bg-body: radial-gradient(circle at top, #f1f5f9 0%, #e2e8f0 48%);
+  --text-primary: #0f172a;
+  --text-muted: #475569;
+  --border-color: #cbd5e1;
+  --panel-bg: rgba(255, 255, 255, 0.9);
+  --input-bg: #ffffff;
+  --card-bg: #ffffff;
+  --btn-primary-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #e2e8f0;
+  --btn-secondary-text: #1e293b;
+  --btn-ghost-border: #cbd5e1;
+  --btn-ghost-text: #334155;
+  --btn-danger-bg: #ef4444;
+  --btn-danger-text: #ffffff;
+  --status-bg: #f1f5f9;
+  --status-border: #cbd5e1;
+  --status-in-progress-bg: #14b8a6;
+  --status-in-progress-border: #0f766e;
+  --status-registration-open-bg: #3b82f6;
+  --status-registration-open-border: #1d4ed8;
+  --status-scheduled-bg: #8b5cf6;
+  --status-scheduled-border: #6d28d9;
+  --status-finished-bg: #22c55e;
+  --status-finished-border: #166534;
+  --status-pending-bg: #cbd5e1;
+  --status-pending-border: #94a3b8;
+  --status-approved-bg: #22c55e;
+  --status-approved-border: #166534;
+  --status-rejected-bg: #ef4444;
+  --status-rejected-border: #b91c1c;
+  --alert-success-bg: rgba(34, 197, 94, 0.2);
+  --alert-success-border: #22c55e;
+  --alert-error-bg: rgba(239, 68, 68, 0.2);
+  --alert-error-border: #ef4444;
+  --winner-color: #16a34a;
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --modal-bg: #ffffff;
+  --hint-info-color: #0284c7;
+  --hint-info-border: #0ea5e9;
+  --hint-warn-color: #b45309;
+  --hint-warn-border: #f97316;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -5,8 +97,8 @@
 body {
   margin: 0;
   font-family: Inter, Arial, sans-serif;
-  color: #e2e8f0;
-  background: radial-gradient(circle at top, #1e293b 0%, #0f172a 48%);
+  color: var(--text-primary);
+  background: var(--bg-body);
   min-height: 100vh;
 }
 
@@ -21,10 +113,10 @@ input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid #334155;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  background: #0f172a;
-  color: #e2e8f0;
+  background: var(--input-bg);
+  color: var(--text-primary);
   padding: 10px 12px;
 }
 
@@ -56,7 +148,7 @@ textarea:focus {
 
 .hero p {
   margin: 8px 0 0;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .user-badge {
@@ -79,8 +171,8 @@ textarea:focus {
 }
 
 .panel {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid #334155;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
@@ -136,43 +228,43 @@ textarea:focus {
   font-size: 12px;
   border-radius: 999px;
   padding: 4px 10px;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--status-bg);
+  border: 1px solid var(--status-border);
 }
 
 .status.in_progress {
-  background: #0f766e;
-  border-color: #14b8a6;
+  background: var(--status-in-progress-bg);
+  border-color: var(--status-in-progress-border);
 }
 
 .status.registration_open {
-  background: #1d4ed8;
-  border-color: #38bdf8;
+  background: var(--status-registration-open-bg);
+  border-color: var(--status-registration-open-border);
 }
 
 .status.scheduled {
-  background: #6d28d9;
-  border-color: #a78bfa;
+  background: var(--status-scheduled-bg);
+  border-color: var(--status-scheduled-border);
 }
 
 .status.finished {
-  background: #166534;
-  border-color: #4ade80;
+  background: var(--status-finished-bg);
+  border-color: var(--status-finished-border);
 }
 
 .status.pending {
-  background: #1e293b;
-  border-color: #64748b;
+  background: var(--status-pending-bg);
+  border-color: var(--status-pending-border);
 }
 
 .status.approved {
-  background: #14532d;
-  border-color: #4ade80;
+  background: var(--status-approved-bg);
+  border-color: var(--status-approved-border);
 }
 
 .status.rejected {
-  background: #7f1d1d;
-  border-color: #f87171;
+  background: var(--status-rejected-bg);
+  border-color: var(--status-rejected-border);
 }
 
 .action-row {
@@ -187,7 +279,7 @@ textarea:focus {
 
 .subsection {
   margin-top: 8px;
-  border-top: 1px solid #334155;
+  border-top: 1px solid var(--border-color);
   padding-top: 10px;
 }
 
@@ -195,14 +287,14 @@ textarea:focus {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  border: 1px solid #334155;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 8px;
 }
 
 .mini-card {
-  border: 1px solid #334155;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 8px;
@@ -219,11 +311,11 @@ textarea:focus {
 }
 
 .bracket-match {
-  border: 1px solid #334155;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 8px;
   margin-bottom: 8px;
-  background: rgba(15, 23, 42, 0.75);
+  background: var(--card-bg);
 }
 
 .bracket-team {
@@ -235,12 +327,12 @@ textarea:focus {
 
 .winner-label {
   font-size: 13px;
-  color: #86efac;
+  color: var(--winner-color);
   margin: 4px 0 6px;
 }
 
 .muted {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -251,21 +343,21 @@ textarea:focus {
 }
 
 .hint.info {
-  color: #7dd3fc;
-  border-left: 3px solid #38bdf8;
+  color: var(--hint-info-color);
+  border-left: 3px solid var(--hint-info-border);
   padding-left: 10px;
 }
 
 .hint.warn {
-  color: #fcd34d;
-  border-left: 3px solid #f59e0b;
+  color: var(--hint-warn-color);
+  border-left: 3px solid var(--hint-warn-border);
   padding-left: 10px;
 }
 
 .hint.inline {
   display: inline-flex;
   align-items: center;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 12px;
   margin: 0;
 }
@@ -277,13 +369,13 @@ textarea:focus {
 }
 
 .alert.success {
-  background: rgba(20, 184, 166, 0.2);
-  border: 1px solid #14b8a6;
+  background: var(--alert-success-bg);
+  border: 1px solid var(--alert-success-border);
 }
 
 .alert.error {
-  background: rgba(220, 38, 38, 0.2);
-  border: 1px solid #dc2626;
+  background: var(--alert-error-bg);
+  border: 1px solid var(--alert-error-border);
 }
 
 .btn {
@@ -295,24 +387,24 @@ textarea:focus {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, #06b6d4, #2563eb);
-  color: #f8fafc;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
 }
 
 .btn.secondary {
-  background: #334155;
-  color: #e2e8f0;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
 }
 
 .btn.ghost {
   background: transparent;
-  border: 1px solid #334155;
-  color: #cbd5e1;
+  border: 1px solid var(--btn-ghost-border);
+  color: var(--btn-ghost-text);
 }
 
 .btn.danger {
-  background: #b91c1c;
-  color: #fee2e2;
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
 }
 
 .btn.tiny {
@@ -324,7 +416,7 @@ textarea:focus {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.72);
+  background: var(--modal-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -333,8 +425,8 @@ textarea:focus {
 
 .modal-content {
   width: min(520px, 100%);
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: var(--modal-bg);
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 16px;
 }
