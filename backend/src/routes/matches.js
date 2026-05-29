@@ -23,10 +23,7 @@ async function createNextRoundIfReady(tournamentId, round) {
   if (nextRoundExists.rows[0].count > 0) return;
 
   const winners = currentRoundMatches.map((match) => match.winner_id);
-  if (winners.length === 1) {
-    await query("UPDATE tournaments SET status = 'finished' WHERE id = $1", [tournamentId]);
-    return;
-  }
+  if (winners.length === 1) return;
 
   for (let i = 0; i < winners.length; i += 2) {
     const team1 = winners[i];
@@ -37,13 +34,13 @@ async function createNextRoundIfReady(tournamentId, round) {
          VALUES ($1, $2, $3, $3, 1, 0, 'finished', $3, now())`,
         [tournamentId, nextRound, team1]
       );
-      continue;
+    } else {
+      await query(
+        `INSERT INTO matches (tournament_id, round, team1_id, team2_id, status, start_time)
+         VALUES ($1, $2, $3, $4, 'scheduled', now())`,
+        [tournamentId, nextRound, team1, team2]
+      );
     }
-    await query(
-      `INSERT INTO matches (tournament_id, round, team1_id, team2_id, status, start_time)
-       VALUES ($1, $2, $3, $4, 'scheduled', now())`,
-      [tournamentId, nextRound, team1, team2]
-    );
   }
 }
 
@@ -54,7 +51,6 @@ router.patch("/:id/result", auth, requireRole("organizer"), async (req, res) => 
   if (typeof score1 !== "number" || typeof score2 !== "number") {
     return res.status(400).json({ message: "Invalid scores" });
   }
-
   if (score1 === score2) {
     return res.status(400).json({ message: "Draws are not allowed in elimination matches" });
   }
@@ -73,8 +69,9 @@ router.patch("/:id/result", auth, requireRole("organizer"), async (req, res) => 
   if (match.status === "finished") {
     return res.status(400).json({ message: "Match result already submitted" });
   }
-  if (new Date() < new Date(match.start_date)) {
-    return res.status(400).json({ message: "Tournament has not started yet" });
+  // ИСПРАВЛЕНО: используем start_time матча, а не start_date турнира
+  if (new Date() < new Date(match.start_time)) {
+    return res.status(400).json({ message: "Match has not started yet" });
   }
   if (!["scheduled", "in_progress"].includes(match.tournament_status)) {
     return res.status(400).json({ message: "Tournament is not in active stage" });
@@ -94,7 +91,7 @@ router.patch("/:id/result", auth, requireRole("organizer"), async (req, res) => 
   await createNextRoundIfReady(match.tournament_id, match.round);
 
   const pendingMatches = await query(
-    "SELECT count(*)::int AS count FROM matches WHERE tournament_id = $1 AND status != 'finished'",
+    "SELECT COUNT(*)::int AS count FROM matches WHERE tournament_id = $1 AND status != 'finished'",
     [match.tournament_id]
   );
   if (pendingMatches.rows[0].count === 0) {

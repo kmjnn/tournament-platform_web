@@ -31,8 +31,14 @@ router.post("/", auth, requireRole("organizer"), async (req, res) => {
   if (Number(minTeams) < 2 || Number(maxTeams) < 2 || Number(minTeams) > Number(maxTeams)) {
     return res.status(400).json({ message: "Invalid teams limits" });
   }
-  if (new Date(registrationDeadline) >= new Date(startDate)) {
+  const now = new Date();
+  const regDate = new Date(registrationDeadline);
+  const start = new Date(startDate);
+  if (regDate >= start) {
     return res.status(400).json({ message: "Registration deadline must be earlier than start date" });
+  }
+  if (start <= now) {
+    return res.status(400).json({ message: "Start date must be in the future" });
   }
 
   const result = await query(
@@ -56,23 +62,51 @@ router.post("/", auth, requireRole("organizer"), async (req, res) => {
   return res.status(201).json(result.rows[0]);
 });
 
+// ПЕРЕНОС ТУРНИРА – исправленная версия
 router.post("/:id/reschedule", auth, requireRole("organizer"), async (req, res) => {
   const { id } = req.params;
   const { startDate, registrationDeadline } = req.body;
   if (!startDate || !registrationDeadline) {
     return res.status(400).json({ message: "Missing new tournament dates" });
   }
-  if (new Date(registrationDeadline) >= new Date(startDate)) {
+  const newStart = new Date(startDate);
+  const newRegDeadline = new Date(registrationDeadline);
+  const now = new Date();
+
+  if (newRegDeadline >= newStart) {
     return res.status(400).json({ message: "Registration deadline must be earlier than start date" });
   }
+  if (newStart <= now) {
+    return res.status(400).json({ message: "Start date must be in the future" });
+  }
+  if (newRegDeadline <= now) {
+    return res.status(400).json({ message: "Registration deadline must be in the future" });
+  }
 
+  // Проверяем, что турнир принадлежит организатору и находится в допустимом статусе
+  const tournamentCheck = await query(
+    "SELECT status FROM tournaments WHERE id = $1 AND created_by = $2",
+    [id, req.user.id]
+  );
+  if (!tournamentCheck.rowCount) {
+    return res.status(404).json({ message: "Tournament not found" });
+  }
+  const currentStatus = tournamentCheck.rows[0].status;
+  if (!["registration_open", "scheduled"].includes(currentStatus)) {
+    return res.status(400).json({ message: "Cannot reschedule tournament that is already in progress or finished" });
+  }
+
+  // Обновляем даты, статус не меняем
   const result = await query(
     `UPDATE tournaments
-       SET start_date = $1, registration_deadline = $2, status = 'registration_open'
+       SET start_date = $1, registration_deadline = $2
      WHERE id = $3 AND created_by = $4
      RETURNING *`,
     [startDate, registrationDeadline, id, req.user.id]
   );
+
+  // Обновляем start_time всех матчей этого турнира
+  await query(`UPDATE matches SET start_time = $1 WHERE tournament_id = $2`, [startDate, id]);
 
   if (!result.rowCount) {
     return res.status(404).json({ message: "Tournament not found" });
@@ -111,7 +145,15 @@ router.post("/:id/generate-bracket", auth, requireRole("organizer"), async (req,
     return res.status(404).json({ message: "Tournament not found" });
   }
   if (new Date() < new Date(tournament.registration_deadline)) {
-    return res.status(400).json({ message: "Registration is still open" });
+  return res.status(400).json({ message: "Registration is still open" });
+  }
+  // Если статус scheduled, но матчей нет – всё равно разрешаем генерацию
+  if (tournament.status === 'scheduled') {
+    const existingMatches = await query("SELECT 1 FROM matches WHERE tournament_id = $1 LIMIT 1", [id]);
+  if (existingMatches.rowCount > 0) {
+    return res.status(400).json({ message: "Bracket already generated" });
+  }
+  // иначе продолжаем (разрешено)
   }
 
   const teamsResult = await query(

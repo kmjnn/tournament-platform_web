@@ -515,8 +515,8 @@ export default function App() {
                 const isRegistrationOpen = tournament.status === "registration_open";
                 const isSingleElim = tournament.format === "single_elim";
                 const registrationClosed = new Date() >= new Date(tournament.registration_deadline);
-                const canGenerateBracket =
-                  isOrganizer && isSingleElim && isRegistrationOpen && registrationClosed;
+                const hasMatches = detailsByTournament[tournament.id]?.matches?.length > 0;
+                const canGenerateBracket = isOrganizer && isSingleElim && registrationClosed && (isRegistrationOpen || (tournament.status === 'scheduled' && !hasMatches));
                 const canForceStart = isOrganizer && ["registration_open", "scheduled"].includes(tournament.status);
                 const canReschedule = isOrganizer && ["registration_open", "scheduled"].includes(tournament.status);
                 const canApply = isParticipant && isRegistrationOpen;
